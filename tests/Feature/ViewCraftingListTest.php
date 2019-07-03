@@ -4,10 +4,9 @@ namespace Tests\Feature;
 
 use App\Game;
 use App\User;
+use App\Badge;
 use App\Booster;
 use Tests\TestCase;
-use PHPUnit\Framework\Assert;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -15,23 +14,14 @@ class ViewCraftingListTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp()
+    private function badgesForUser($user, $quantity = 1)
     {
-        parent::setUp();
+        $games = factory(Game::class, $quantity)->create();
 
-        Collection::macro('assertEquals', function ($items) {
-            Assert::assertEquals(count($this), count($items));
-            $this->zip($items)->each(function ($pair) {
-                list($a, $b) = $pair;
-                Assert::assertTrue($a->is($b));
-            });
-        });
-    }
+        $user->games()->saveMany($games);
 
-    private function boostersforUser($user, $quantity)
-    {
-        return factory(Booster::class, $quantity)->create()->each(function ($booster) use ($user) {
-            $booster->game->user()->save($user);
+        return $games->map(function ($game) {
+            return factory(Badge::class)->create(['game_id' => $game->id]);
         });
     }
 
@@ -49,51 +39,56 @@ class ViewCraftingListTest extends TestCase
     function users_can_only_see_games_they_can_craft_boosters_for()
     {
         $user = factory(User::class)->create();
-        $boosters = $this->boostersforUser($user, 3);
-        $otherGame = factory(Game::class)->create();
-        $user->games()->save($otherGame);
+        $gamesWithBadges = $this->badgesForUser($user, 3)->pluck('game');
+        $gamesWithoutBadges = factory(Game::class, 2)->create();
+        $user->games()->saveMany($gamesWithoutBadges);
 
         $response = $this->actingAs($user)->get("/{$user->name}/games/crafting");
 
-        $response->original->getData()['games']->assertEquals($boosters->pluck('game'));
-        $boosters->each(function($game) use ($response) {
+        $response->original->getData()['games']->assertEquals($gamesWithBadges);
+        $gamesWithBadges->each(function ($game) use ($response) {
             $response->assertSee($game->name);
         });
-        $response->assertDontSee($otherGame->name);
-        
+        $gamesWithoutBadges->each(function ($game) use ($response) {
+            $response->assertDontSee($game->name);
+        });
     }
 
+
     /** @test */
-    function users_can_only_view_a_list_of_their_games()
+    function users_can_only_view_a_list_of_the_games_they_can_create_boosters_for()
     {
         $user = factory(User::class)->create();
-        $boosters = $this->boostersforUser($user, 3);
-        $otherGameBooster = factory(Booster::class)->create();
+        $userGamesWithBadges = $this->badgesForUser($user, 3)->pluck('game');
+        $anotherGame = factory(Game::class)->create();
+        $anotherBadge = factory(Badge::class)->create(['game_id' => $anotherGame->id]);
 
         $response = $this->actingAs($user)->get("/{$user->name}/games/crafting");
 
-        $response->original->getData()['games']->assertEquals($boosters->pluck('game'));
-        $boosters->each(function($game) use ($response) {
+        $response->original->getData()['games']->assertEquals($userGamesWithBadges);
+        $userGamesWithBadges->each(function ($game) use ($response) {
             $response->assertSee($game->name);
         });
-        $response->assertDontSee($otherGameBooster->game->name);
+        $response->assertDontSee($anotherGame->name);
     }
 
     /** @test */
     function users_can_see_the_booster_crafting_cost_of_their_games()
     {
         $user = factory(User::class)->create();
-        $boosters = $this->boostersforUser($user, 3);
-        
+        $this->badgesForUser($user, 3);
+        $user->games->each(function ($game) {
+            factory(Booster::class)->create(['game_id' => $game->id]);
+        });
+
         $response = $this->actingAs($user)->get("/{$user->name}/games/crafting");
 
-        $response->original->getData()['games']->pluck('booster')->assertEquals($boosters);
+        $response->original->getData()['games']->assertEquals($user->fresh()->gamesWithBadges);
 
-        $boosters->each(function($booster) use ($response) {
-            $response->assertSee($booster->crafting_gems);
-            $response->assertSee($booster->game->name);
+        $user->gamesWithBadges->each(function ($game) use ($response) {
+            $this->assertNotNull($game->fresh()->booster_crafting_gems);
+            $response->assertSee($game->booster_crafting_gems);
+            $response->assertSee($game->name);
         });
     }
-
-
 }

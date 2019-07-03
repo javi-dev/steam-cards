@@ -6,13 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
+    protected $guarded = null;
+
     public function user()
     {
         return $this->belongsToMany(User::class);
     }
-    
-    public function booster()
+
+    public function badge()
     {
-        return $this->hasOne(Booster::class);
+        return $this->hasOne(Badge::class);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBoostersTable extends Migration
+class CreateBadgesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateBoostersTable extends Migration
      */
     public function up()
     {
-        Schema::create('boosters', function (Blueprint $table) {
+        Schema::create('badges', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('game_id');
             $table->timestamps();
@@ -27,6 +27,6 @@ class CreateBoostersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('boosters');
+        Schema::dropIfExists('badges');
     }
 }

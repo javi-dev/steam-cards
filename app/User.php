@@ -31,5 +31,16 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Game::class);
     }
-    
+
+    public function getBadgesAttribute()
+    {
+        return $this->games->pluck('badge')->filter();
+    }
+
+    public function getGamesWithBadgesAttribute()
+    {
+        return $this->games->filter(function ($game) {
+            return $game->badge != null;
+        });
+    }
 }
