@@ -74,7 +74,7 @@ class ViewCraftingListTest extends TestCase
         $response->original->getData()['games']->assertEquals($games);
 
         $user->gamesWithBadges->each(function ($game) use ($response) {
-            $this->assertNotNull($game->fresh()->booster_crafting_gems);
+            $this->assertNotNull($game->booster_crafting_gems);
             $response->assertSee($game->booster_crafting_gems);
             $response->assertSee($game->name);
         });

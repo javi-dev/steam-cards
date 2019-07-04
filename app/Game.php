@@ -17,4 +17,9 @@ class Game extends Model
     {
         return $this->hasOne(Badge::class);
     }
+
+    public function booster()
+    {
+        return $this->hasOne(Booster::class);
+    }
 }

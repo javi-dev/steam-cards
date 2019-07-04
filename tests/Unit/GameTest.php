@@ -6,6 +6,7 @@ use App\Game;
 use App\Booster;
 use Tests\TestCase;
 use PHPUnit\Framework\Assert;
+use Database\FluentFactories\GameFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,8 +26,7 @@ class GameTest extends TestCase
     /** @test */
     function games_with_badges_have_a_booster_crafting_cost()
     {
-        $game = factory(Game::class)->create();
-        $booster = factory(Booster::class)->create(['game_id' => $game->id]);
+        $game = app(GameFactory::class)->withBadges()->create()->first();
 
         $this->assertNotNull($game->fresh()->booster_crafting_gems);
     }

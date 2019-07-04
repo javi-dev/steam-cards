@@ -9,9 +9,3 @@ $factory->define(App\Booster::class, function (Faker $faker) {
         }
     ];
 });
-
-$factory->afterCreating(App\Booster::class, function ($booster, $faker) {
-    $booster->game->booster_crafting_gems = $faker->numberBetween(400, 1200);
-
-    $booster->game->save();
-});
