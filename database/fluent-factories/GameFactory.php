@@ -12,6 +12,8 @@ class GameFactory
 
     protected $withBadges;
 
+    protected $overrides = [];
+
     public function ownedBy(User $user)
     {
         $this->user = $user;
@@ -26,10 +28,16 @@ class GameFactory
         return $this;
     }
 
+    public function overrides($overrides)
+    {
+        $this->overrides = $overrides;
+
+        return $this;
+    }
+
     public function create($count = 1)
     {
-        $games = factory(Game::class, $count)->create();
-
+        $games = factory(Game::class, $count)->create($this->overrides);
 
         if ($this->withBadges) {
             $games->each(function ($game) {
