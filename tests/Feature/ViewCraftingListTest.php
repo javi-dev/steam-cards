@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Game;
 use App\User;
 use App\Badge;
+use App\Offer;
 use App\Booster;
 use Tests\TestCase;
 use Database\FluentFactories\GameFactory;
@@ -28,7 +29,6 @@ class ViewCraftingListTest extends TestCase
     /** @test */
     function users_can_only_see_games_they_can_craft_boosters_for()
     {
-
         $user = factory(User::class)->create();
 
         $gamesWithBadges = app(GameFactory::class)->ownedBy($user)->withBadges()->create(3);
@@ -78,5 +78,41 @@ class ViewCraftingListTest extends TestCase
             $response->assertSee($game->booster_crafting_gems);
             $response->assertSee($game->name);
         });
+    }
+
+    /** @test */
+    function users_can_see_the_expected_earnings_when_undercutting_boosters()
+    {
+        // Given I have the price of a sack of gems
+        // For now, let's just hardcode it
+        $sack_of_gems_price = 24;
+
+        // And I have a game
+        $game = app(GameFactory::class)->withBadges()->overrides([
+            'booster_crafting_gems' => 1000,
+        ])->create()->first();
+
+        // And that booster is being offered on the market at some prices
+        $offers = collect([
+            34 => 1,
+            36 => 4,
+            41 => 1,
+            50 => 1,
+            57 => 1,
+        ]);
+
+        $offers->each(function ($quantity, $price) use ($game) {
+            factory(Offer::class)->create([
+                'booster_id' => $game->booster->id,
+                'price' => $price,
+                'quantity' => $quantity,
+            ]);
+        });
+
+        // And I visit my crafting list
+        $response = $this->actingAs($user = $game->user[0])->get("/{$user->name}/games/crafting")->assertSuccessful();
+
+        // I expect to see the expected earnings or losses
+        $response->assertSee('9');
     }
 }

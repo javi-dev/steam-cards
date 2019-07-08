@@ -30,4 +30,15 @@ class GameTest extends TestCase
 
         $this->assertNotNull($game->fresh()->booster_crafting_gems);
     }
+
+    /** @test */
+    function games_can_have_boosters()
+    {
+        $game = app(GameFactory::class)->withBadges()->create()->first();
+        $booster = factory(Booster::class)->create([
+            'game_id' => $game->id,
+        ]);
+
+        $this->assertInstanceOf(Booster::class, $game->booster);
+    }
 }
