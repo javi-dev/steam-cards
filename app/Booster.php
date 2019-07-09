@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booster extends Model
 {
+    use BoosterPresenter;
+
     public function game()
     {
         return $this->belongsTo(Game::class);

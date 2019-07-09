@@ -5,9 +5,9 @@ namespace Tests\Unit;
 use App\Offer;
 use App\Booster;
 use Tests\TestCase;
+use Database\FluentFactories\GameFactory;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Database\FluentFactories\GameFactory;
 
 class BoosterTest extends TestCase
 {
@@ -56,5 +56,13 @@ class BoosterTest extends TestCase
         ]);
 
         $this->assertEquals(10, $game->booster->undercut_profit);
+    }
+
+    /** @test */
+    function a_booster_without_offers_displays_that_instead()
+    {
+        $game = app(GameFactory::class)->withBadges()->craftingGems(1000)->create()->first();
+
+        $this->assertEquals('No offers', $game->booster->undercut_profit);
     }
 }

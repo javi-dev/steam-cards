@@ -29,6 +29,8 @@ class ViewCraftingListTest extends TestCase
     /** @test */
     function users_can_only_see_games_they_can_craft_boosters_for()
     {
+        $this->withoutExceptionHandling();
+
         $user = factory(User::class)->create();
 
         $gamesWithBadges = app(GameFactory::class)->ownedBy($user)->withBadges()->create(3);
@@ -108,6 +110,6 @@ class ViewCraftingListTest extends TestCase
         $response = $this->actingAs($user = $game->user[0])->get("/{$user->name}/games/crafting")->assertSuccessful();
 
         // I expect to see the expected earnings or losses
-        $response->assertSee('9');
+        $response->assertSee('0.09 €');
     }
 }
