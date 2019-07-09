@@ -12,6 +12,8 @@ class GameFactory
 
     protected $withBadges;
 
+    protected $craftingGems;
+
     protected $overrides = [];
 
     public function ownedBy(User $user)
@@ -24,6 +26,13 @@ class GameFactory
     public function withBadges($withBadges = true)
     {
         $this->withBadges = $withBadges;
+
+        return $this;
+    }
+
+    public function craftingGems($gems)
+    {
+        $this->craftingGems = $gems;
 
         return $this;
     }
@@ -44,6 +53,10 @@ class GameFactory
                 $game->badge = factory(Badge::class)->create([
                     'game_id' => $game->id
                 ]);
+
+                $game->booster->crafting_gems = $this->craftingGems ?? $game->booster->crafting_gems;
+
+                $game->booster->save();
             });
         }
 

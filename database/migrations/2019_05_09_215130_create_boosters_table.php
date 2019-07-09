@@ -16,6 +16,7 @@ class CreateBoostersTable extends Migration
         Schema::create('boosters', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('game_id');
+            $table->unsignedInteger('crafting_gems')->nullable();
             $table->timestamps();
         });
     }

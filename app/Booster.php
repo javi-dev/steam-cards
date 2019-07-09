@@ -24,7 +24,7 @@ class Booster extends Model
 
         $sack_of_gems_price = 24; // TODO
 
-        $booster_cost = $this->game->booster_crafting_gems * $sack_of_gems_price / 1000;
+        $booster_cost = $this->crafting_gems * $sack_of_gems_price / 1000;
 
         $undercut_price = $this->offers()->get()->sortBy('price')->first()->price - 1;
 

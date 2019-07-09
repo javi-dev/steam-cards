@@ -35,7 +35,7 @@ class BoosterTest extends TestCase
     {
         $sack_of_gems_price = 24; //Temporary
 
-        $game = app(GameFactory::class)->withBadges()->overrides(['booster_crafting_gems' => 1000])->create()->first();
+        $game = app(GameFactory::class)->withBadges()->craftingGems(1000)->create()->first();
 
         $midOffers = factory(Offer::class)->create([
             'booster_id' => $game->booster->id,

@@ -65,17 +65,14 @@ class ViewCraftingListTest extends TestCase
     function users_can_see_the_booster_crafting_cost_of_their_games()
     {
         $games = app(GameFactory::class)->withBadges()->create(3);
-        $games->each(function ($game) {
-            factory(Booster::class)->create(['game_id' => $game->id]);
-        });
 
         $response = $this->actingAs($user = $games[0]->user[0])->get("/{$user->name}/games/crafting");
 
         $response->original->getData()['games']->assertEquals($games);
 
         $user->gamesWithBadges->each(function ($game) use ($response) {
-            $this->assertNotNull($game->booster_crafting_gems);
-            $response->assertSee($game->booster_crafting_gems);
+            $this->assertNotNull($game->booster->crafting_gems);
+            $response->assertSee($game->booster->crafting_gems);
             $response->assertSee($game->name);
         });
     }
@@ -88,9 +85,7 @@ class ViewCraftingListTest extends TestCase
         $sack_of_gems_price = 24;
 
         // And I have a game
-        $game = app(GameFactory::class)->withBadges()->overrides([
-            'booster_crafting_gems' => 1000,
-        ])->create()->first();
+        $game = app(GameFactory::class)->withBadges()->craftingGems(1000)->create()->first();
 
         // And that booster is being offered on the market at some prices
         $offers = collect([

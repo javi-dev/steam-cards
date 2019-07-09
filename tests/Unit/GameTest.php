@@ -28,7 +28,7 @@ class GameTest extends TestCase
     {
         $game = app(GameFactory::class)->withBadges()->create()->first();
 
-        $this->assertNotNull($game->fresh()->booster_crafting_gems);
+        $this->assertNotNull($game->booster->crafting_gems);
     }
 
     /** @test */
