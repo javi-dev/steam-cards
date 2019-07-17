@@ -82,14 +82,10 @@ class ViewCraftingListTest extends TestCase
     /** @test */
     function users_can_see_the_expected_earnings_when_undercutting_boosters()
     {
-        // Given I have the price of a sack of gems
-        // For now, let's just hardcode it
         $sack_of_gems_price = 24;
 
-        // And I have a game
         $game = app(GameFactory::class)->withBadges()->craftingGems(1000)->create()->first();
 
-        // And that booster is being offered on the market at some prices
         $offers = collect([
             34 => 1,
             36 => 4,
@@ -106,10 +102,8 @@ class ViewCraftingListTest extends TestCase
             ]);
         });
 
-        // And I visit my crafting list
         $response = $this->actingAs($user = $game->user[0])->get("/{$user->name}/games/crafting")->assertSuccessful();
 
-        // I expect to see the expected earnings or losses
         $response->assertSee('0.09 €');
     }
 }
